@@ -1,0 +1,12 @@
+image:
+  tag: "0.0.1"
+
+job:
+  ttlSecondsAfterFinished: 600
+
+config:
+  springDatasourceUrl: "jdbc:mysql://mysql-prod.default.svc.cluster.local:3306/event_log_pipeline?serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+
+secret:
+  springDatasourceUsername: "prod-user-placeholder"
+  springDatasourcePassword: "prod-password-placeholder"

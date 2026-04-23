@@ -1,0 +1,621 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mysql-event-log-pipeline"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "dataset": "default",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) AS value FROM event_log",
+          "refId": "A"
+        }
+      ],
+      "title": "전체 이벤트 수",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mysql-event-log-pipeline"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "dataset": "default",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(CASE WHEN event_type = 'course_enroll' AND event_status = 'success' THEN 1 ELSE 0 END) AS value FROM event_log",
+          "refId": "A"
+        }
+      ],
+      "title": "성공한 수강 등록 수",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mysql-event-log-pipeline"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "dataset": "default",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(SUM(CASE WHEN event_type = 'course_enroll' AND event_status = 'success' THEN price ELSE 0 END), 0) AS value FROM event_log",
+          "refId": "A"
+        }
+      ],
+      "title": "총 매출",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mysql-event-log-pipeline"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 20
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "dataset": "default",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(COALESCE(SUM(CASE WHEN event_status != 'success' THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0) * 100, 0), 2) AS value FROM event_log",
+          "refId": "A"
+        }
+      ],
+      "title": "전체 실패율 (%)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mysql-event-log-pipeline"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "dataset": "default",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT CASE event_type WHEN 'course_view' THEN '강의 조회' WHEN 'course_enroll' THEN '수강 등록' WHEN 'lesson_start' THEN '수강 시작' WHEN 'lesson_complete' THEN '수강 완료' WHEN 'question_create' THEN '질문 등록' ELSE event_type END AS event_type, COUNT(*) AS event_count FROM event_log GROUP BY event_type ORDER BY event_count DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "이벤트 유형별 건수",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mysql-event-log-pipeline"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 6,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "단계 순서"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "dataset": "default",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH session_flags AS ( SELECT session_id, MAX(CASE WHEN event_type = 'course_view' AND event_status = 'success' THEN 1 ELSE 0 END) AS has_course_view, MAX(CASE WHEN event_type = 'course_enroll' AND event_status = 'success' THEN 1 ELSE 0 END) AS has_course_enroll, MAX(CASE WHEN event_type = 'lesson_start' AND event_status = 'success' THEN 1 ELSE 0 END) AS has_lesson_start, MAX(CASE WHEN event_type = 'lesson_complete' AND event_status = 'success' THEN 1 ELSE 0 END) AS has_lesson_complete FROM event_log GROUP BY session_id ) SELECT * FROM ( SELECT 1 AS '단계 순서', '강의 조회' AS '단계', COALESCE(SUM(has_course_view), 0) AS '세션 수', 100.0 AS '전환율(%)' FROM session_flags UNION ALL SELECT 2 AS '단계 순서', '수강 등록' AS '단계', COALESCE(SUM(has_course_enroll), 0) AS '세션 수', COALESCE(ROUND(COALESCE(SUM(has_course_enroll), 0) / NULLIF(COALESCE(SUM(has_course_view), 0), 0) * 100, 2), 0) AS '전환율(%)' FROM session_flags UNION ALL SELECT 3 AS '단계 순서', '수강 시작' AS '단계', COALESCE(SUM(has_lesson_start), 0) AS '세션 수', COALESCE(ROUND(COALESCE(SUM(has_lesson_start), 0) / NULLIF(COALESCE(SUM(has_course_view), 0), 0) * 100, 2), 0) AS '전환율(%)' FROM session_flags UNION ALL SELECT 4 AS '단계 순서', '수강 완료' AS '단계', COALESCE(SUM(has_lesson_complete), 0) AS '세션 수', COALESCE(ROUND(COALESCE(SUM(has_lesson_complete), 0) / NULLIF(COALESCE(SUM(has_course_view), 0), 0) * 100, 2), 0) AS '전환율(%)' FROM session_flags ) funnel ORDER BY `단계 순서`",
+          "refId": "A"
+        }
+      ],
+      "title": "퍼널 전환 현황",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mysql-event-log-pipeline"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "dataset": "default",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT CASE event_type WHEN 'course_view' THEN '강의 조회' WHEN 'course_enroll' THEN '수강 등록' WHEN 'lesson_start' THEN '수강 시작' WHEN 'lesson_complete' THEN '수강 완료' WHEN 'question_create' THEN '질문 등록' ELSE event_type END AS event_type, ROUND(SUM(CASE WHEN event_status = 'success' THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS success_rate FROM event_log GROUP BY event_type ORDER BY success_rate DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "이벤트 유형별 성공률",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mysql-event-log-pipeline"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "dataset": "default",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT failure_reason, COUNT(*) AS failure_count FROM event_log WHERE failure_reason IS NOT NULL GROUP BY failure_reason ORDER BY failure_count DESC LIMIT 10",
+          "refId": "A"
+        }
+      ],
+      "title": "실패 사유 분포",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mysql-event-log-pipeline"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 36
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "dataset": "default",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT endpoint, ROUND(AVG(latency_ms), 2) AS average_latency_ms FROM event_log GROUP BY endpoint ORDER BY average_latency_ms DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "엔드포인트 평균 지연시간",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mysql-event-log-pipeline"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 44
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "dataset": "default",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT CONCAT('강의-', course_id) AS course_name, ROUND(SUM(CASE WHEN event_type = 'lesson_complete' AND event_status = 'success' THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN event_type = 'course_enroll' AND event_status = 'success' THEN 1 ELSE 0 END), 0) * 100, 2) AS completion_rate FROM event_log WHERE course_id IS NOT NULL GROUP BY course_id HAVING SUM(CASE WHEN event_type = 'course_enroll' AND event_status = 'success' THEN 1 ELSE 0 END) > 0 ORDER BY SUM(CASE WHEN event_type = 'course_enroll' AND event_status = 'success' THEN 1 ELSE 0 END) DESC, completion_rate DESC LIMIT 10",
+          "refId": "A"
+        }
+      ],
+      "title": "강의별 수강 완료율",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mysql-event-log-pipeline"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 52
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "dataset": "default",
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT DATE_FORMAT(created_at, '%Y-%m-%d %H:00') AS event_hour, COUNT(*) AS event_count FROM event_log GROUP BY event_hour ORDER BY event_hour",
+          "refId": "A"
+        }
+      ],
+      "title": "시간대별 이벤트 건수",
+      "type": "barchart"
+    }
+  ],
+  "preload": false,
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": [
+    "event-log",
+    "pipeline",
+    "grafana"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Event Log Pipeline Overview",
+  "uid": "event-log-pipeline",
+  "version": 3,
+  "weekStart": ""
+}

@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: event-log-pipeline
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: "jdbc:mysql://localhost:3306/event_log_pipeline?serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+    username: event_user
+    password: event_password
+
+mybatis:
+  mapper-locations: classpath:mappers/**/*.xml
+  type-aliases-package: com.shyu.eventlogpipeline.domain
+  configuration:
+    map-underscore-to-camel-case: true
+
+simulation:
+  enabled: true
+  interval-seconds: 5
+  batch-size: 1000
+  max-runs: 12
+  seed: 42
+
+output:
+  directory: output

@@ -1,0 +1,21 @@
+image:
+  repository: event-log-pipeline-app
+  tag: latest
+  pullPolicy: IfNotPresent
+
+job:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 300
+
+config:
+  springDatasourceUrl: "jdbc:mysql://mysql.default.svc.cluster.local:3306/event_log_pipeline?serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+  outputDirectory: "/app/output"
+  simulationEnabled: "true"
+  simulationIntervalSeconds: "5"
+  simulationBatchSize: "1000"
+  simulationMaxRuns: "12"
+  simulationSeed: "42"
+
+secret:
+  springDatasourceUsername: "change-me-user"
+  springDatasourcePassword: "change-me-password"

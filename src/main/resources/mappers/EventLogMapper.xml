@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shyu.eventlogpipeline.mapper.EventLogMapper">
+
+    <update id="createEventLogTable">
+        CREATE TABLE IF NOT EXISTS event_log (
+            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            event_id VARCHAR(36) NOT NULL,
+            session_id VARCHAR(64) NOT NULL,
+            user_id INT NOT NULL,
+            event_type VARCHAR(30) NOT NULL,
+            event_status VARCHAR(20) NOT NULL,
+            failure_reason VARCHAR(50) NULL,
+            http_status INT NOT NULL,
+            endpoint VARCHAR(100) NOT NULL,
+            device_type VARCHAR(20) NOT NULL,
+            country VARCHAR(2) NOT NULL,
+            course_id INT NOT NULL,
+            price DECIMAL(12, 2) NULL,
+            latency_ms INT NOT NULL,
+            created_at DATETIME NOT NULL,
+            UNIQUE KEY uk_event_log_event_id (event_id),
+            INDEX idx_event_log_created_at (created_at),
+            INDEX idx_event_log_event_type (event_type),
+            INDEX idx_event_log_event_status (event_status),
+            INDEX idx_event_log_session_event (session_id, event_type)
+        )
+    </update>
+
+    <update id="dropEventLogTable">
+        DROP TABLE IF EXISTS event_log
+    </update>
+
+    <update id="truncateEventLogTable">
+        TRUNCATE TABLE event_log
+    </update>
+
+    <insert id="insertEvents">
+        INSERT INTO event_log (
+            event_id,
+            session_id,
+            user_id,
+            event_type,
+            event_status,
+            failure_reason,
+            http_status,
+            endpoint,
+            device_type,
+            country,
+            course_id,
+            price,
+            latency_ms,
+            created_at
+        )
+        VALUES
+        <foreach collection="eventLogs" item="eventLog" separator=",">
+            (
+                #{eventLog.eventId},
+                #{eventLog.sessionId},
+                #{eventLog.userId},
+                #{eventLog.eventType},
+                #{eventLog.eventStatus},
+                #{eventLog.failureReason},
+                #{eventLog.httpStatus},
+                #{eventLog.endpoint},
+                #{eventLog.deviceType},
+                #{eventLog.country},
+                #{eventLog.courseId},
+                #{eventLog.price},
+                #{eventLog.latencyMs},
+                #{eventLog.createdAt}
+            )
+        </foreach>
+    </insert>
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*)
+        FROM event_log
+    </select>
+
+    <select id="selectEventTypeCounts" resultType="com.shyu.eventlogpipeline.dto.EventTypeCount">
+        SELECT
+            event_type AS eventType,
+            COUNT(*) AS eventCount
+        FROM event_log
+        GROUP BY event_type
+        ORDER BY eventCount DESC
+    </select>
+
+    <select id="selectHourlyEventCounts" resultType="com.shyu.eventlogpipeline.dto.HourlyEventCount">
+        SELECT
+            DATE_FORMAT(created_at, '%Y-%m-%d %H:00') AS eventHour,
+            COUNT(*) AS eventCount
+        FROM event_log
+        GROUP BY eventHour
+        ORDER BY eventHour
+    </select>
+
+    <select id="selectFunnelConversions" resultType="com.shyu.eventlogpipeline.dto.FunnelConversion">
+        WITH session_steps AS (
+            SELECT
+                session_id,
+                MAX(CASE WHEN event_type = 'course_view' AND event_status = 'success' THEN 1 ELSE 0 END) AS has_course_view,
+                MAX(CASE WHEN event_type = 'course_enroll' AND event_status = 'success' THEN 1 ELSE 0 END) AS has_course_enroll,
+                MAX(CASE WHEN event_type = 'lesson_start' AND event_status = 'success' THEN 1 ELSE 0 END) AS has_lesson_start,
+                MAX(CASE WHEN event_type = 'lesson_complete' AND event_status = 'success' THEN 1 ELSE 0 END) AS has_lesson_complete
+            FROM event_log
+            GROUP BY session_id
+        )
+        SELECT
+            step_name AS stepName,
+            session_count AS sessionCount,
+            conversion_rate AS conversionRate
+        FROM (
+            SELECT
+                1 AS step_order,
+                'course_view' AS step_name,
+                COALESCE(SUM(has_course_view), 0) AS session_count,
+                100.0 AS conversion_rate
+            FROM session_steps
+            UNION ALL
+            SELECT
+                2 AS step_order,
+                'course_enroll' AS step_name,
+                COALESCE(SUM(has_course_enroll), 0) AS session_count,
+                COALESCE(ROUND(COALESCE(SUM(has_course_enroll), 0) / NULLIF(COALESCE(SUM(has_course_view), 0), 0) * 100, 2), 0) AS conversion_rate
+            FROM session_steps
+            UNION ALL
+            SELECT
+                3 AS step_order,
+                'lesson_start' AS step_name,
+                COALESCE(SUM(has_lesson_start), 0) AS session_count,
+                COALESCE(ROUND(COALESCE(SUM(has_lesson_start), 0) / NULLIF(COALESCE(SUM(has_course_view), 0), 0) * 100, 2), 0) AS conversion_rate
+            FROM session_steps
+            UNION ALL
+            SELECT
+                4 AS step_order,
+                'lesson_complete' AS step_name,
+                COALESCE(SUM(has_lesson_complete), 0) AS session_count,
+                COALESCE(ROUND(COALESCE(SUM(has_lesson_complete), 0) / NULLIF(COALESCE(SUM(has_course_view), 0), 0) * 100, 2), 0) AS conversion_rate
+            FROM session_steps
+        ) funnel
+        ORDER BY step_order
+    </select>
+
+    <select id="selectUserEventCounts" resultType="com.shyu.eventlogpipeline.dto.UserEventCount">
+        SELECT
+            user_id AS userId,
+            COUNT(*) AS eventCount
+        FROM event_log
+        GROUP BY user_id
+        ORDER BY eventCount DESC
+        LIMIT 10
+    </select>
+
+    <select id="selectEventTypeSuccessRates" resultType="com.shyu.eventlogpipeline.dto.EventTypeSuccessRate">
+        SELECT
+            event_type AS eventType,
+            SUM(CASE WHEN event_status = 'success' THEN 1 ELSE 0 END) AS successCount,
+            COUNT(*) AS totalCount,
+            ROUND(SUM(CASE WHEN event_status = 'success' THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS successRate
+        FROM event_log
+        GROUP BY event_type
+        ORDER BY successRate DESC
+    </select>
+
+    <select id="selectFailureStatusCounts" resultType="com.shyu.eventlogpipeline.dto.FailureStatusCount">
+        SELECT
+            event_status AS eventStatus,
+            COUNT(*) AS failureCount
+        FROM event_log
+        WHERE event_status IN ('business_failure', 'system_failure')
+        GROUP BY event_status
+        ORDER BY failureCount DESC
+    </select>
+
+    <select id="selectFailureReasonCounts" resultType="com.shyu.eventlogpipeline.dto.FailureReasonCount">
+        SELECT
+            failure_reason AS failureReason,
+            COUNT(*) AS failureCount
+        FROM event_log
+        WHERE failure_reason IS NOT NULL
+        GROUP BY failure_reason
+        ORDER BY failureCount DESC
+    </select>
+
+    <select id="selectEndpointLatencyStats" resultType="com.shyu.eventlogpipeline.dto.EndpointLatencyStat">
+        SELECT
+            endpoint,
+            COUNT(*) AS eventCount,
+            SUM(CASE WHEN event_status != 'success' THEN 1 ELSE 0 END) AS failureCount,
+            ROUND(AVG(latency_ms), 2) AS averageLatencyMs
+        FROM event_log
+        GROUP BY endpoint
+        ORDER BY averageLatencyMs DESC
+    </select>
+
+    <select id="selectCoursePerformances" resultType="com.shyu.eventlogpipeline.dto.CoursePerformance">
+        SELECT
+            course_id AS courseId,
+            SUM(CASE WHEN event_type = 'course_enroll' AND event_status = 'success' THEN 1 ELSE 0 END) AS successfulEnrollments,
+            SUM(CASE WHEN event_type = 'lesson_complete' AND event_status = 'success' THEN 1 ELSE 0 END) AS completedLessons,
+            SUM(CASE WHEN event_type = 'question_create' AND event_status = 'success' THEN 1 ELSE 0 END) AS questionCreates,
+            COALESCE(
+                ROUND(
+                    SUM(CASE WHEN event_type = 'lesson_complete' AND event_status = 'success' THEN 1 ELSE 0 END)
+                    / NULLIF(SUM(CASE WHEN event_type = 'course_enroll' AND event_status = 'success' THEN 1 ELSE 0 END), 0)
+                    * 100,
+                    2
+                ),
+                0
+            ) AS completionRate
+        FROM event_log
+        GROUP BY course_id
+        HAVING SUM(CASE WHEN event_type = 'course_enroll' AND event_status = 'success' THEN 1 ELSE 0 END) > 0
+        ORDER BY successfulEnrollments DESC, completionRate DESC
+        LIMIT 10
+    </select>
+
+    <select id="selectQualityCheckResults" resultType="com.shyu.eventlogpipeline.dto.QualityCheckResult">
+        SELECT
+            'duplicate event_id count' AS checkName,
+            COUNT(*) AS issueCount
+        FROM (
+            SELECT event_id
+            FROM event_log
+            GROUP BY event_id
+            HAVING COUNT(*) > 1
+        ) duplicate_event_ids
+        UNION ALL
+        SELECT
+            'invalid event_type count' AS checkName,
+            COUNT(*) AS issueCount
+        FROM event_log
+        WHERE event_type NOT IN ('course_view', 'course_enroll', 'lesson_start', 'lesson_complete', 'question_create')
+        UNION ALL
+        SELECT
+            'course_enroll with null price count' AS checkName,
+            COUNT(*) AS issueCount
+        FROM event_log
+        WHERE event_type = 'course_enroll'
+          AND price IS NULL
+        UNION ALL
+        SELECT
+            'failure without reason count' AS checkName,
+            COUNT(*) AS issueCount
+        FROM event_log
+        WHERE event_status != 'success'
+          AND failure_reason IS NULL
+        UNION ALL
+        SELECT
+            'success with failure_reason count' AS checkName,
+            COUNT(*) AS issueCount
+        FROM event_log
+        WHERE event_status = 'success'
+          AND failure_reason IS NOT NULL
+        UNION ALL
+        SELECT
+            'success with non-200 http_status count' AS checkName,
+            COUNT(*) AS issueCount
+        FROM event_log
+        WHERE event_status = 'success'
+          AND http_status != 200
+        UNION ALL
+        SELECT
+            'lesson_start without successful enrollment session count' AS checkName,
+            COUNT(*) AS issueCount
+        FROM (
+            SELECT DISTINCT lesson_start.session_id
+            FROM event_log lesson_start
+            LEFT JOIN event_log course_enroll
+              ON lesson_start.session_id = course_enroll.session_id
+             AND course_enroll.event_type = 'course_enroll'
+             AND course_enroll.event_status = 'success'
+            WHERE lesson_start.event_type = 'lesson_start'
+              AND lesson_start.event_status = 'success'
+              AND course_enroll.session_id IS NULL
+        ) invalid_lesson_start_sessions
+        UNION ALL
+        SELECT
+            'lesson_complete without successful lesson_start session count' AS checkName,
+            COUNT(*) AS issueCount
+        FROM (
+            SELECT DISTINCT lesson_complete.session_id
+            FROM event_log lesson_complete
+            LEFT JOIN event_log lesson_start
+              ON lesson_complete.session_id = lesson_start.session_id
+             AND lesson_start.event_type = 'lesson_start'
+             AND lesson_start.event_status = 'success'
+            WHERE lesson_complete.event_type = 'lesson_complete'
+              AND lesson_complete.event_status = 'success'
+              AND lesson_start.session_id IS NULL
+        ) invalid_lesson_complete_sessions
+    </select>
+
+    <select id="selectSummaryStats" resultType="com.shyu.eventlogpipeline.dto.SummaryStats">
+        SELECT
+            COUNT(*) AS totalEvents,
+            COUNT(DISTINCT session_id) AS totalSessions,
+            SUM(CASE WHEN event_type = 'course_enroll' AND event_status = 'success' THEN 1 ELSE 0 END) AS successfulEnrollments,
+            SUM(CASE WHEN event_type = 'lesson_complete' AND event_status = 'success' THEN 1 ELSE 0 END) AS completedLessons,
+            SUM(CASE WHEN event_type = 'question_create' AND event_status = 'success' THEN 1 ELSE 0 END) AS questionCreateCount,
+            COALESCE(SUM(CASE WHEN event_type = 'course_enroll' AND event_status = 'success' THEN price ELSE 0 END), 0) AS totalRevenue,
+            SUM(CASE WHEN event_status = 'business_failure' THEN 1 ELSE 0 END) AS businessFailureCount,
+            SUM(CASE WHEN event_status = 'system_failure' THEN 1 ELSE 0 END) AS systemFailureCount,
+            ROUND(SUM(CASE WHEN event_status != 'success' THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS failureRate,
+            ROUND(AVG(latency_ms), 2) AS averageLatencyMs,
+            (
+                SELECT failure_reason
+                FROM event_log
+                WHERE failure_reason IS NOT NULL
+                GROUP BY failure_reason
+                ORDER BY COUNT(*) DESC
+                LIMIT 1
+            ) AS topFailureReason
+        FROM event_log
+    </select>
+</mapper>

@@ -1,0 +1,55 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: event-log-pipeline-mysql
+    environment:
+      MYSQL_DATABASE: event_log_pipeline
+      MYSQL_USER: event_user
+      MYSQL_PASSWORD: event_password
+      MYSQL_ROOT_PASSWORD: root_password
+      TZ: Asia/Seoul
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  app:
+    build: .
+    container_name: event-log-pipeline-app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/event_log_pipeline?serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+      SPRING_DATASOURCE_USERNAME: event_user
+      SPRING_DATASOURCE_PASSWORD: event_password
+      OUTPUT_DIRECTORY: /app/output
+    volumes:
+      - ./output:/app/output
+
+  grafana:
+    image: grafana/grafana
+    container_name: event-log-pipeline-grafana
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana-data:/var/lib/grafana
+
+volumes:
+  mysql-data:
+  grafana-data:

@@ -1,0 +1,11 @@
+image:
+  tag: dev
+
+config:
+  springDatasourceUrl: "jdbc:mysql://mysql-dev.default.svc.cluster.local:3306/event_log_pipeline?serverTimezone=Asia/Seoul&characterEncoding=UTF-8"
+  simulationBatchSize: "100"
+  simulationMaxRuns: "2"
+
+secret:
+  springDatasourceUsername: "dev-user-placeholder"
+  springDatasourcePassword: "dev-password-placeholder"

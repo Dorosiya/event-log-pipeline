@@ -1,0 +1,138 @@
+<mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <!-- 배경 박스 -->
+    <!-- 1. 인터넷 / 외부 -->
+    <mxCell id="bg1" value="인터넷 / 외부" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#bdbdbd;strokeWidth=1;align=left;verticalAlign=top;fontSize=10;fontColor=#888888;" vertex="1" parent="1">
+      <mxGeometry x="15" y="45" width="165" height="120" as="geometry" />
+    </mxCell>
+    <!-- 2. 요청 진입 구역: ALB -->
+    <mxCell id="bg2" value="요청 진입 구역 (AWS)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#bdbdbd;strokeWidth=1;align=left;verticalAlign=top;fontSize=10;fontColor=#888888;opacity=40;" vertex="1" parent="1">
+      <mxGeometry x="190" y="45" width="165" height="120" as="geometry" />
+    </mxCell>
+    <!-- 3. 애플리케이션 구역: API 서버 -->
+    <mxCell id="bg3" value="애플리케이션 구역" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#bdbdbd;strokeWidth=1;align=left;verticalAlign=top;fontSize=10;fontColor=#888888;opacity=40;" vertex="1" parent="1">
+      <mxGeometry x="365" y="45" width="230" height="120" as="geometry" />
+    </mxCell>
+    <!-- 4. 이벤트 파이프라인 구역: MSK + JDBC Sink + S3 Sink -->
+    <mxCell id="bg4" value="이벤트 파이프라인 구역" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#bdbdbd;strokeWidth=1;align=left;verticalAlign=top;fontSize=10;fontColor=#888888;opacity=40;" vertex="1" parent="1">
+      <mxGeometry x="600" y="45" width="700" height="205" as="geometry" />
+    </mxCell>
+    <!-- 5. 저장 / 시각화 구역: RDS + S3 + Grafana -->
+    <mxCell id="bg5" value="저장 / 시각화 구역" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#bdbdbd;strokeWidth=1;align=left;verticalAlign=top;fontSize=10;fontColor=#888888;opacity=40;" vertex="1" parent="1">
+      <mxGeometry x="825" y="260" width="475" height="270" as="geometry" />
+    </mxCell>
+    <!-- 6. 관측 구역: CloudWatch -->
+    <mxCell id="bg6" value="관측 구역" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#bdbdbd;strokeWidth=1;align=left;verticalAlign=top;fontSize=10;fontColor=#888888;opacity=40;" vertex="1" parent="1">
+      <mxGeometry x="1380" y="420" width="240" height="130" as="geometry" />
+    </mxCell>
+
+    <!-- 서비스 박스 -->
+    <mxCell id="s1" value="사용자(웹/앱)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="30" y="75" width="140" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="s2" value="ALB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="205" y="75" width="135" height="60" as="geometry" />
+    </mxCell>
+    <mxCell id="s3" value="API 서버&#xa;on Amazon EKS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="380" y="70" width="200" height="70" as="geometry" />
+    </mxCell>
+    <mxCell id="s4" value="Amazon MSK&#xa;Kafka 이벤트 브로커" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="620" y="70" width="200" height="70" as="geometry" />
+    </mxCell>
+    <!-- JDBC Sink Connector -->
+    <mxCell id="s5" value="JDBC Sink Connector" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d79b00;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="840" y="175" width="185" height="55" as="geometry" />
+    </mxCell>
+    <!-- S3 Sink Connector -->
+    <mxCell id="s10" value="S3 Sink Connector" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d79b00;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="1090" y="175" width="185" height="55" as="geometry" />
+    </mxCell>
+    <mxCell id="s6" value="Amazon RDS for MySQL&#xa;구조화 이벤트 저장" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="840" y="280" width="200" height="70" as="geometry" />
+    </mxCell>
+    <mxCell id="s7" value="Amazon S3&#xa;원본 이벤트 아카이빙" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="1090" y="280" width="200" height="70" as="geometry" />
+    </mxCell>
+    <mxCell id="s8" value="Amazon Managed Grafana&#xa;운영형 대시보드" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d0e0e3;strokeColor=#006eaf;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="840" y="400" width="200" height="70" as="geometry" />
+    </mxCell>
+    <mxCell id="s9" value="Amazon CloudWatch&#xa;로그 / 메트릭 / 알람" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="1390" y="435" width="200" height="70" as="geometry" />
+    </mxCell>
+
+    <!-- 메인 흐름 화살표 (수평 직선) -->
+    <mxCell id="e1" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" source="s1" target="s2" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e2" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" source="s2" target="s3" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <mxCell id="e3" value="이벤트 발행" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" edge="1" source="s3" target="s4" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- MSK → JDBC Sink: 하단 좌측 출구, y=155 경유 (상단 경로) -->
+    <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.2;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" source="s4" target="s5" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="932" y="155" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <!-- MSK → S3 Sink: 하단 우측 출구, y=165 경유 (하단 경로, e4와 분리) -->
+    <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.8;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" source="s4" target="s10" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1182" y="165" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+
+    <!-- JDBC Sink → RDS (수직 직선) -->
+    <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" source="s5" target="s6" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+    <!-- S3 Sink → S3 (수직 직선) -->
+    <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" source="s10" target="s7" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Grafana → RDS (수직 직선, 조회) -->
+    <mxCell id="e8" value="조회" style="edgeStyle=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;fontSize=10;" edge="1" source="s8" target="s6" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- 관측 화살표: 박스 상단 출구 → 다이어그램 위 여백 경유 → CloudWatch 상단 진입 -->
+    <!-- API 서버 → CloudWatch: y=22 경유 -->
+    <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#aaaaaa;strokeWidth=1.5;dashed=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.4;entryY=0;entryDx=0;entryDy=0;" edge="1" source="s3" target="s9" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="480" y="22" />
+          <mxPoint x="1470" y="22" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <!-- MSK → CloudWatch: y=32 경유 (e9와 분리) -->
+    <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#aaaaaa;strokeWidth=1.5;dashed=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.6;entryY=0;entryDx=0;entryDy=0;" edge="1" source="s4" target="s9" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="720" y="32" />
+          <mxPoint x="1510" y="32" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <!-- RDS → CloudWatch: 저장 구역 하단(y=365) 경유 → 좌측 진입 -->
+    <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#aaaaaa;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="s6" target="s9" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="1040" y="365" />
+          <mxPoint x="1380" y="365" />
+        </Array>
+      </mxGeometry>
+    </mxCell>
+
+  </root>
+</mxGraphModel>

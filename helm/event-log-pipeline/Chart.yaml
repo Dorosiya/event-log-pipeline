@@ -1,0 +1,6 @@
+apiVersion: v2
+name: event-log-pipeline
+description: Helm chart for the event log pipeline batch job
+type: application
+version: 0.1.0
+appVersion: "0.0.1"
